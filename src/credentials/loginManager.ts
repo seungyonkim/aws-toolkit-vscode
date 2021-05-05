@@ -76,7 +76,7 @@ export class LoginManager {
             this.store.invalidateCredentials(args.providerId)
             return false
         } finally {
-            const credType = provider?.getCredentialsType2()
+            const credType = provider?.getCredentialsType()
             this.recordAwsSetCredentialsFn({
                 passive: args.passive,
                 credentialType: credType,

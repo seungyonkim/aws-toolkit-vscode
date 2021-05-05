@@ -299,9 +299,9 @@ describe('SamDebugConfigurationProvider', async function () {
 
             const credentialsProvider: CredentialsProvider = {
                 getCredentials: sandbox.stub().resolves(({} as any) as AWS.Credentials),
-                getCredentialsType2: sandbox.stub().resolves('staticProfile'),
+                getCredentialsType: sandbox.stub().resolves('staticProfile'),
                 getCredentialsProviderId: sandbox.stub().returns({
-                    credentialType: 'test',
+                    credentialSource: 'sharedCredentials',
                     credentialTypeId: 'someId',
                 }),
                 getDefaultRegion: sandbox.stub().returns('someRegion'),
@@ -322,7 +322,7 @@ describe('SamDebugConfigurationProvider', async function () {
                 await debugConfigProviderMockCredentials.makeConfig(config.folder, {
                     ...config.config,
                     aws: {
-                        credentials: 'profile:error',
+                        credentials: 'sharedCredentials:error',
                     },
                 }),
                 undefined
@@ -3264,9 +3264,9 @@ Resources:
 
             const credentialsProvider: CredentialsProvider = {
                 getCredentials: sandbox.stub().resolves(({} as any) as AWS.Credentials),
-                getCredentialsType2: sandbox.stub().resolves('staticProfile'),
+                getCredentialsType: sandbox.stub().resolves('staticProfile'),
                 getCredentialsProviderId: sandbox.stub().returns({
-                    credentialType: 'test',
+                    credentialSource: 'sharedCredentials',
                     credentialTypeId: 'someId',
                 }),
                 getDefaultRegion: sandbox.stub().returns('someRegion'),
@@ -3294,7 +3294,7 @@ Resources:
             const folder = testutil.getWorkspaceFolder(appDir)
             const awsSection = {
                 aws: {
-                    credentials: 'profile:success',
+                    credentials: 'sharedCredentials:success',
                     region: 'us-weast-9',
                 },
             }

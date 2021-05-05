@@ -3,17 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { CredentialType } from '../../shared/telemetry/telemetry.gen';
+import { CredentialType } from '../../shared/telemetry/telemetry.gen'
 import { CredentialsProviderId } from './credentialsProviderId'
 
 export interface CredentialsProvider {
     getCredentialsProviderId(): CredentialsProviderId
     /**
      * Gets the credential type, mostly for use in telemetry.
-     * 
-     * TODO: use this to build `getCredentialsProviderId()`.
      */
-    getCredentialsType2(): CredentialType
+    getCredentialsType(): CredentialType
     getDefaultRegion(): string | undefined
     getHashCode(): string
     getCredentials(): Promise<AWS.Credentials>

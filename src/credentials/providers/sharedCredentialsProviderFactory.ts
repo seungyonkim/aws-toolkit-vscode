@@ -21,8 +21,8 @@ export class SharedCredentialsProviderFactory extends BaseCredentialsProviderFac
     private loadedCredentialsModificationMillis?: number
     private loadedConfigModificationMillis?: number
 
-    public getCredentialType(): CredentialSourceId {
-        return SharedCredentialsProvider.getCredentialsType()
+    public getCredentialSource(): CredentialSourceId {
+        return SharedCredentialsProvider.getCredentialSource()
     }
 
     public async refresh(): Promise<void> {

@@ -75,7 +75,7 @@ export class DefaultAWSContextCommands {
             if (profileName) {
                 // TODO: change this once we figure out what profile types we should have
                 const sharedProviderId: CredentialsProviderId = {
-                    credentialType: SharedCredentialsProvider.getCredentialsType(),
+                    credentialSource: SharedCredentialsProvider.getCredentialSource(),
                     credentialTypeId: profileName,
                 }
 

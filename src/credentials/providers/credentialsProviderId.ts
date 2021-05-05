@@ -3,11 +3,13 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { CredentialSourceId } from '../../shared/telemetry/telemetry.gen'
+
 const CREDENTIALS_PROVIDER_ID_SEPARATOR = ':'
 
 export interface CredentialsProviderId {
-    /** Credential type name, e.g. "profile". */
-    readonly credentialType: string
+    /** Credential source id, e.g. "sharedCredentials". */
+    readonly credentialSource: CredentialSourceId
     /** User-defined profile name, e.g. "default". */
     readonly credentialTypeId: string
 }
@@ -15,15 +17,14 @@ export interface CredentialsProviderId {
 /**
  * Gets a user-friendly string represention of the given `CredentialsProvider`.
  *
- * For use in e.g. the statusbar, selecting profiles in a menu, etc.
- * Includes information related to the credentials type, as well as
- * instance-identifying information.
+ * For use in e.g. the statusbar, menus, etc.  Includes:
+ * - credentials source kind
+ * - instance-identifying information (typically the "profile name")
  *
  * @param credentialsProviderId  Value to be formatted.
- *
  */
 export function asString(credentialsProviderId: CredentialsProviderId): string {
-    return [credentialsProviderId.credentialType, credentialsProviderId.credentialTypeId].join(
+    return [credentialsProviderId.credentialSource, credentialsProviderId.credentialTypeId].join(
         CREDENTIALS_PROVIDER_ID_SEPARATOR
     )
 }
@@ -35,12 +36,21 @@ export function fromString(credentialsProviderId: string): CredentialsProviderId
         throw new Error(`Unexpected credentialsProviderId format: ${credentialsProviderId}`)
     }
 
+    // TODO: modify telemetry generator to define enumerable types. https://stackoverflow.com/a/64174790
+    function isCredentialSource(s: string): boolean {
+        return ['sharedCredentials', 'sdkStore', 'ec2', 'envVars', 'other'].includes(s)
+    }
+    const credSource = credentialsProviderId.substring(0, separatorPos)
+    if (!isCredentialSource(credSource)) {
+        throw new Error(`unexpected credentialSource: ${credSource}`)
+    }
+
     return {
-        credentialType: credentialsProviderId.substring(0, separatorPos),
+        credentialSource: credSource as CredentialSourceId,
         credentialTypeId: credentialsProviderId.substring(separatorPos + 1),
     }
 }
 
 export function isEqual(idA: CredentialsProviderId, idB: CredentialsProviderId): boolean {
-    return idA.credentialType === idB.credentialType && idA.credentialTypeId === idB.credentialTypeId
+    return idA.credentialSource === idB.credentialSource && idA.credentialTypeId === idB.credentialTypeId
 }

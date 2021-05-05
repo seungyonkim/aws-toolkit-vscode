@@ -36,7 +36,7 @@ const SHARED_CREDENTIAL_PROPERTIES = {
  * Represents one profile from the AWS Shared Credentials files, and produces Credentials from this profile.
  */
 export class SharedCredentialsProvider implements CredentialsProvider {
-    private static readonly CREDENTIALS_TYPE: CredentialSourceId = 'sharedCredentials'
+    private static readonly CREDENTIALS_SOURCE: CredentialSourceId = 'sharedCredentials'
 
     private readonly profile: Profile
 
@@ -55,7 +55,7 @@ export class SharedCredentialsProvider implements CredentialsProvider {
 
     public getCredentialsProviderId(): CredentialsProviderId {
         return {
-            credentialType: SharedCredentialsProvider.getCredentialsType(),
+            credentialSource: SharedCredentialsProvider.getCredentialSource(),
             credentialTypeId: this.profileName,
         }
     }
@@ -244,18 +244,11 @@ export class SharedCredentialsProvider implements CredentialsProvider {
         AWS.config.sts.region = this.getDefaultRegion()
     }
 
-    /**
-     * Legacy function that does nothing particularly useful.
-     *
-     * You are probably looking for `getCredentialsType2()`.
-     *
-     * TODO: deprecated / why is this static?!
-     */
-    public static getCredentialsType(): CredentialSourceId {
-        return SharedCredentialsProvider.CREDENTIALS_TYPE
+    public static getCredentialSource(): CredentialSourceId {
+        return SharedCredentialsProvider.CREDENTIALS_SOURCE
     }
 
-    public getCredentialsType2(): CredentialType {
+    public getCredentialsType(): CredentialType {
         return this.isSsoProfile() ? 'ssoProfile' : 'staticProfile'
     }
 

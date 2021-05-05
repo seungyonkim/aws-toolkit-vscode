@@ -16,12 +16,12 @@ import { CredentialsProviderManager } from '../../../credentials/providers/crede
 class TestCredentialsProviderFactory implements CredentialsProviderFactory {
     private readonly providers: CredentialsProvider[] = []
 
-    public constructor(public readonly credentialType: CredentialSourceId, providerSubIds: string[]) {
+    public constructor(public readonly credentialSource: CredentialSourceId, providerSubIds: string[]) {
         this.providers.push(
             ...providerSubIds.map<CredentialsProvider>(subId => {
                 return ({
                     getCredentialsProviderId: () => ({
-                        credentialType: this.credentialType,
+                        credentialSource: this.credentialSource,
                         credentialTypeId: subId,
                     }),
                 } as any) as CredentialsProvider
@@ -29,8 +29,8 @@ class TestCredentialsProviderFactory implements CredentialsProviderFactory {
         )
     }
 
-    public getCredentialType(): CredentialSourceId {
-        return this.credentialType
+    public getCredentialSource(): CredentialSourceId {
+        return this.credentialSource
     }
 
     public listProviders(): CredentialsProvider[] {
@@ -65,15 +65,15 @@ describe('CredentialsProviderManager', async function () {
 
         const expectedCredentials = {
             'sharedCredentials:one': {
-                credentialType: 'sharedCredentials',
+                credentialSource: 'sharedCredentials',
                 credentialTypeId: 'one',
             },
             'envVars:three': {
-                credentialType: 'envVars',
+                credentialSource: 'envVars',
                 credentialTypeId: 'three',
             },
             'envVars:two': {
-                credentialType: 'envVars',
+                credentialSource: 'envVars',
                 credentialTypeId: 'two',
             },
         }
@@ -94,7 +94,7 @@ describe('CredentialsProviderManager', async function () {
             assert.ok(
                 providers.some(x =>
                     isEqual(x.getCredentialsProviderId(), {
-                        credentialType: 'sharedCredentials',
+                        credentialSource: 'sharedCredentials',
                         credentialTypeId: 'one',
                     })
                 ),
@@ -103,7 +103,7 @@ describe('CredentialsProviderManager', async function () {
             assert.ok(
                 providers.some(x =>
                     isEqual(x.getCredentialsProviderId(), {
-                        credentialType: 'envVars',
+                        credentialSource: 'envVars',
                         credentialTypeId: 'two',
                     })
                 ),
@@ -112,7 +112,7 @@ describe('CredentialsProviderManager', async function () {
             assert.ok(
                 providers.some(x =>
                     isEqual(x.getCredentialsProviderId(), {
-                        credentialType: 'envVars',
+                        credentialSource: 'envVars',
                         credentialTypeId: 'three',
                     })
                 ),
@@ -125,7 +125,7 @@ describe('CredentialsProviderManager', async function () {
         it('returns a provider', async function () {
             const factoryA = new TestCredentialsProviderFactory('sharedCredentials', ['default'])
             const expectedCredentialsProviderId: CredentialsProviderId = {
-                credentialType: 'sharedCredentials',
+                credentialSource: 'sharedCredentials',
                 credentialTypeId: 'default',
             }
 
@@ -147,7 +147,7 @@ describe('CredentialsProviderManager', async function () {
             sut.addProviderFactory(factoryA)
 
             const provider = await sut.getCredentialsProvider({
-                credentialType: 'sharedCredentials',
+                credentialSource: 'sharedCredentials',
                 credentialTypeId: 'default',
             })
 
@@ -160,7 +160,7 @@ describe('CredentialsProviderManager', async function () {
             sut.addProviderFactory(factoryA)
 
             const provider = await sut.getCredentialsProvider({
-                credentialType: 'sharedCredentials',
+                credentialSource: 'sharedCredentials',
                 credentialTypeId: 'default',
             })
 

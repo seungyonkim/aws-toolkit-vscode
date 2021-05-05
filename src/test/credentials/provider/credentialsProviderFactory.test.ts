@@ -14,7 +14,7 @@ describe('BaseCredentialsProviderFactory', async function () {
      * This class exposes abstract class functionality for the purpose of testing it.
      */
     class TestCredentialsProviderFactory extends BaseCredentialsProviderFactory<CredentialsProvider> {
-        public getCredentialType(): CredentialSourceId {
+        public getCredentialSource(): CredentialSourceId {
             return 'sharedCredentials'
         }
 
@@ -92,7 +92,7 @@ describe('BaseCredentialsProviderFactory', async function () {
 
     function makeSampleCredentialsProviderId(testProviderId: string): CredentialsProviderId {
         return {
-            credentialType: 'test',
+            credentialSource: 'sharedCredentials',
             credentialTypeId: testProviderId,
         }
     }

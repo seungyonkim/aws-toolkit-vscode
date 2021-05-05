@@ -29,7 +29,7 @@ interface ProfileEntry {
 
 export class DefaultCredentialSelectionDataProvider implements CredentialSelectionDataProvider {
     private static readonly defaultCredentialsProfileName = asString({
-        credentialType: SharedCredentialsProvider.getCredentialsType(),
+        credentialSource: SharedCredentialsProvider.getCredentialSource(),
         credentialTypeId: 'default',
     })
 

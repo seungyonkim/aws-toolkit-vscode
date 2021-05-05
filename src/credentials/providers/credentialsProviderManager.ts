@@ -22,7 +22,7 @@ export class CredentialsProviderManager {
             await factory.refresh()
 
             const refreshed = factory.listProviders()
-            recordAwsLoadCredentials({ credentialSourceId: factory.getCredentialType(), value: refreshed.length })
+            recordAwsLoadCredentials({ credentialSourceId: factory.getCredentialSource(), value: refreshed.length })
             providers = providers.concat(refreshed)
         }
 
@@ -45,7 +45,7 @@ export class CredentialsProviderManager {
     public async getCredentialsProvider(
         credentialsProviderId: CredentialsProviderId
     ): Promise<CredentialsProvider | undefined> {
-        const factories = this.getFactories(credentialsProviderId.credentialType)
+        const factories = this.getFactories(credentialsProviderId.credentialSource)
         for (const factory of factories) {
             await factory.refresh()
 
@@ -63,7 +63,7 @@ export class CredentialsProviderManager {
     }
 
     private getFactories(credentialsType: string): CredentialsProviderFactory[] {
-        return this.providerFactories.filter(f => f.getCredentialType() === credentialsType)
+        return this.providerFactories.filter(f => f.getCredentialSource() === credentialsType)
     }
 
     public static getInstance(): CredentialsProviderManager {
