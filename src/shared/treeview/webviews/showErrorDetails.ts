@@ -21,7 +21,8 @@ export async function showErrorDetails(element: ErrorNode) {
     const view = vscode.window.createWebviewPanel(
         'html',
         `Error details for ${element.parent.label}`,
-        vscode.ViewColumn.Active
+        vscode.ViewColumn.Active,
+        { enableScripts: true }
     )
 
     try {
