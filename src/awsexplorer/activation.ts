@@ -24,7 +24,6 @@ import {
 } from '../shared/telemetry/telemetry'
 import { AWSResourceNode } from '../shared/treeview/nodes/awsResourceNode'
 import { AWSTreeNodeBase } from '../shared/treeview/nodes/awsTreeNodeBase'
-import { ErrorNode } from '../shared/treeview/nodes/errorNode'
 import { LoadMoreNode } from '../shared/treeview/nodes/loadMoreNode'
 import { downloadStateMachineDefinition } from '../stepFunctions/commands/downloadStateMachineDefinition'
 import { executeStateMachine } from '../stepFunctions/commands/executeStateMachine'
