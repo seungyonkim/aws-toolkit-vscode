@@ -2,7 +2,7 @@
     "name": "aws-toolkit-vscode",
     "displayName": "AWS Toolkit",
     "description": "An extension for working with Amazon Web Services",
-    "version": "1.25.0-SNAPSHOT",
+    "version": "1.26.0-SNAPSHOT",
     "publisher": "amazonwebservices",
     "license": "Apache-2.0",
     "repository": {
@@ -1560,7 +1560,7 @@
         "esbuild-loader": "2.10.0",
         "eslint": "^6.8.0",
         "eslint-config-prettier": "^6.10.1",
-        "eslint-plugin-header": "^3.0.0",
+        "eslint-plugin-header": "^3.1.1",
         "eslint-plugin-no-null": "^1.0.2",
         "glob": "^7.1.4",
         "husky": "^6.0.0",
