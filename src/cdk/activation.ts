@@ -80,4 +80,14 @@ async function registerCdkCommands(context: vscode.ExtensionContext, explorer: A
             )
         })
     )
+
+    const visualizationManager2 = new AslVisualizationCDKManager(context)
+    context.subscriptions.push(
+        vscode.commands.registerCommand('aws.previewStateMachineCDK', async (node: ConstructNode) => {
+            return await visualizationManager2.visualizeStateMachine(
+                context.globalState,
+                node
+            )
+        })
+    )
 }

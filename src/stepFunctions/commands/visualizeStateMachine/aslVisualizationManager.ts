@@ -2,9 +2,6 @@
  * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
-
-import * as nls from 'vscode-nls'
-const localize = nls.loadMessageBundle()
 import * as vscode from 'vscode'
 import { getLogger, Logger } from '../../../shared/logger'
 import { StateMachineGraphCache } from '../../utils'
