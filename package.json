@@ -51,7 +51,7 @@
         "onCommand:aws.help",
         "onCommand:aws.github",
         "onCommand:aws.previewStateMachine",
-        "onCommand:aws.cdk.previewStateMachineCDK",
+        "onCommand:aws.previewStateMachineCDK",
         "onCommand:aws.stepfunctions.createStateMachineFromTemplate",
         "onCommand:aws.stepfunctions.publishStateMachine",
         "onView:aws.cdk.explorer",
