@@ -148,6 +148,7 @@ export default class CreateStateMachineWizard extends MultiStepWizard<CreateStat
             },
         })
 
+        //need to fix this part 
         //this.stateMachine = picker.verifySinglePickerOutput<{ label: StateMachineListPickItem }>(choices)?.label
 
         return this.stateMachine ? WIZARD_TERMINATE : WIZARD_GOBACK
