@@ -11,31 +11,27 @@ import * as path from 'path'
 import * as vscode from 'vscode'
 import { readFileAsString } from '../../shared/filesystemUtilities'
 import { getLogger, Logger } from '../../shared/logger'
-import CreateStateMachineWizard, {
-    CDKAppListPickItem,
-    StateMachineListPickItem,
-} from '../wizards/previewStateMachineCDKWizard'
+import PreviewStateMachineCDKWizard from '../wizards/previewStateMachineCDKWizard'
 
-import { JSON_ASL } from '../../stepFunctions/constants/aslFormats'
-
-export async function createStateMachineFromTemplate(context: vscode.ExtensionContext) {
+export async function previewCDKStateMachineFromTemplate(context: vscode.ExtensionContext) {
     const logger: Logger = getLogger()
 
-    const wizardResponse = await new CreateStateMachineWizard().run()
+    const wizardResponse = await new PreviewStateMachineCDKWizard().run()
 
-    if (wizardResponse && wizardResponse.appList&& wizardResponse.stateMachine) {
+    if (wizardResponse && wizardResponse.cdkApplication && wizardResponse.stateMachine) {
         try {
             logger.debug(
-                `User selected the ${wizardResponse.appList.label} template of ${wizardResponse.stateMachine} format`
+                //change this part!!!!!!!!!!!!!!!!!!!!!!!!!!
+                `User selected the ${wizardResponse.cdkApplication.label} template of ${wizardResponse.stateMachine} format`
             )
 
-            const textDocumentFromSelection = await getTextDocumentForSelectedItem(
-                wizardResponse.appList,
-                context.extensionPath,
-                wizardResponse.stateMachine
-            )
+            // const textDocumentFromSelection = await getTextDocumentForSelectedItem(
+            //     wizardResponse.cdkApplication,
+            //     context.extensionPath,
+            //     wizardResponse.stateMachine.
+            // )
 
-            vscode.window.showTextDocument(textDocumentFromSelection)
+            //vscode.window.showTextDocument(textDocumentFromSelection)
         } catch (err) {
             logger.error(err as Error)
             vscode.window.showErrorMessage(
@@ -48,17 +44,17 @@ export async function createStateMachineFromTemplate(context: vscode.ExtensionCo
     }
 }
 
-async function getTextDocumentForSelectedItem(
-    item: StateMachineListPickItem,
-    extensionPath: string,
-    format: string
-): Promise<vscode.TextDocument> {
-    let content = await readFileAsString(path.join(extensionPath, 'templates', item.fileName))
+// async function getTextDocumentForSelectedItem(
+//     item: StateMachineListPickItem,
+//     extensionPath: string,
+//     format: string
+// ): Promise<vscode.TextDocument> {
+//     let content = await readFileAsString(path.join(extensionPath, 'templates', item.fileName))
 
-    const options = {
-        content,
-        language: format === JSON_ASL,
-    }
+//     const options = {
+//         content,
+//         language: format === JSON_ASL,
+//     }
 
-    return await vscode.workspace.openTextDocument(options)
-}
+//     return await vscode.workspace.openTextDocument(options)
+// }

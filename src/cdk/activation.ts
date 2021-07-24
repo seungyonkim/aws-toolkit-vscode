@@ -11,6 +11,7 @@ import { AppNode } from './explorer/nodes/appNode'
 import { cdk } from './globals'
 import { ConstructNode } from './explorer/nodes/constructNode'
 import { AslVisualizationCDKManager } from './commands/aslVisualizationCDKManager'
+import { previewCDKStateMachineFromTemplate } from './commands/renderGraphCommandPalette'
 
 /**
  * Activate AWS CDK related functionality for the extension.
@@ -81,13 +82,9 @@ async function registerCdkCommands(context: vscode.ExtensionContext, explorer: A
         })
     )
 
-    const visualizationManager2 = new AslVisualizationCDKManager(context)
     context.subscriptions.push(
-        vscode.commands.registerCommand('aws.previewStateMachineCDK', async (node: ConstructNode) => {
-            return await visualizationManager2.visualizeStateMachine(
-                context.globalState,
-                node
-            )
+        vscode.commands.registerCommand('aws.previewStateMachineCDK', async () => {
+            return await previewCDKStateMachineFromTemplate(context)
         })
     )
 }

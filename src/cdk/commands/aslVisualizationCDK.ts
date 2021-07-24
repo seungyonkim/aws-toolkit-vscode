@@ -17,7 +17,7 @@ export class AslVisualizationCDK extends AslVisualization {
         this.uniqueIdentifier = uniqueIdentifier
     }
 
-    protected override getText(textDocument: vscode.TextDocument): string {
+    protected getText(textDocument: vscode.TextDocument): string {
         console.log('aslVisualizationCDK.ts')
         const definitionString = getStateMachineDefinitionFromCfnTemplate(this.uniqueIdentifier, this.templatePath)
         const cfnDefinition = toUnescapedAslJson(definitionString!)
