@@ -12,6 +12,9 @@ import * as vscode from 'vscode'
 import { readFileAsString } from '../../shared/filesystemUtilities'
 import { getLogger, Logger } from '../../shared/logger'
 import PreviewStateMachineCDKWizard from '../wizards/previewStateMachineCDKWizard'
+import { showErrorWithLogs } from '../../../src/shared/utilities/messages'
+import { renderGraphCommand } from './renderGraph'
+import { AslVisualizationCDKManager } from './aslVisualizationCDKManager'
 
 export async function previewCDKStateMachineFromTemplate(context: vscode.ExtensionContext) {
     const logger: Logger = getLogger()
@@ -22,24 +25,13 @@ export async function previewCDKStateMachineFromTemplate(context: vscode.Extensi
         try {
             logger.debug(
                 //change this part!!!!!!!!!!!!!!!!!!!!!!!!!!
-                `User selected the ${wizardResponse.cdkApplication.label} template of ${wizardResponse.stateMachine} format`
+                `User selected the ${wizardResponse.stateMachine} state machine of ${wizardResponse.cdkApplication.label} CDK application`
             )
 
-            // const textDocumentFromSelection = await getTextDocumentForSelectedItem(
-            //     wizardResponse.cdkApplication,
-            //     context.extensionPath,
-            //     wizardResponse.stateMachine.
-            // )
+            renderGraphCommand(wizardResponse.stateMachine.stateMachineNode,extensionContext,visualizationManager)
 
-            //vscode.window.showTextDocument(textDocumentFromSelection)
         } catch (err) {
-            logger.error(err as Error)
-            vscode.window.showErrorMessage(
-                localize(
-                    'AWS.message.error.stepfunctions.getTextDocumentForSelectedItem',
-                    'There was an error creating the State Machine Template, check log for details.'
-                )
-            )
+        
         }
     }
 }

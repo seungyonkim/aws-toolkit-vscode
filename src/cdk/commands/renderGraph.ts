@@ -31,7 +31,6 @@ export async function renderGraphCommand(
         let uri = vscode.Uri.file(templatePath);
         const textDocument = await vscode.workspace.openTextDocument(uri)
         const newVisualization = new AslVisualizationCDK(textDocument, templatePath, uniqueIdentifier)
-        console.log('five')
         getLogger().info('Rendered graph: %O', uniqueIdentifier)
         window.showInformationMessage(localize('AWS.cdk.renderStateMachineGraph.success', 'Rendered graph {0}', uniqueIdentifier))
 

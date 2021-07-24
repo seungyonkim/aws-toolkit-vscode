@@ -22,6 +22,8 @@ import { ConstructNode } from '../explorer/nodes/constructNode'
 import { String } from 'aws-sdk/clients/cloudsearch'
 import { map } from 'lodash'
 import { AppNode } from '../explorer/nodes/appNode'
+import { PlaceholderNode } from '../../../src/shared/treeview/nodes/placeholderNode'
+import { AWSTreeNodeBase } from '../../../src/shared/treeview/nodes/awsTreeNodeBase'
 
 export interface CdkAppLocationPickItem {
     label: string,
@@ -29,23 +31,24 @@ export interface CdkAppLocationPickItem {
 }
 export interface ConstructNodePickItem {
     label: string,
-    //stateMachineNode: ConstructNode
-    stateMachineNode: string
+    //stateMachineNode: ConstructNode | PlaceholderNode
+    stateMachineNode: AWSTreeNodeBase
+    //stateMachineNode: string
 }
-export const STARTER_TEMPLATES: ConstructNodePickItem[] = [
-    {
-        label: localize('AWS.stepfunctions.template.helloWorld.label', 'Hello world'),
-        stateMachineNode: 'HelloWorld.asl.json',
-    },
-    {
-        label: localize('AWS.stepfunctions.template.retryFailure.label', 'Retry failure'),
-        stateMachineNode: 'RetryFailure.asl.json',
-    },
-    {
-        label: localize('AWS.stepfunctions.template.waitState.label', 'Wait state'),
-        stateMachineNode: 'WaitState.asl.json',
-    },
-]
+// export const STARTER_TEMPLATES: ConstructNodePickItem[] = [
+//     {
+//         label: localize('AWS.stepfunctions.template.helloWorld.label', 'Hello world'),
+//         stateMachineNode: 'HelloWorld.asl.json',
+//     },
+//     {
+//         label: localize('AWS.stepfunctions.template.retryFailure.label', 'Retry failure'),
+//         stateMachineNode: 'RetryFailure.asl.json',
+//     },
+//     {
+//         label: localize('AWS.stepfunctions.template.waitState.label', 'Wait state'),
+//         stateMachineNode: 'WaitState.asl.json',
+//     },
+// ]
 
 interface PreviewStateMachineCDKWizardResponse {
     cdkApplication: CdkAppLocationPickItem
@@ -77,7 +80,7 @@ export default class PreviewStateMachineCDKWizard extends MultiStepWizard<Previe
             CDK_APPLOCATIONS.push(
                 {
                     //need to change this part!!!!!!!!!!!!!!!!
-                    //label: obj.cdkJsonPath,
+                    //label: cdkAppLocations.length.toString(),
                     label: obj.cdkJsonPath,
                     cdkApplocation: obj
                 })
@@ -118,15 +121,29 @@ export default class PreviewStateMachineCDKWizard extends MultiStepWizard<Previe
         const appLocation = this.cdkApplication ? this.cdkApplication.cdkApplocation : undefined
         const appNode = new AppNode(appLocation!)
         const constructNodes = await appNode.getChildren()
-        const STATE_MACHINES = constructNodes.map(node => {
-            return <ConstructNodePickItem><unknown>{
+        // const STACK_NODES: Thenable<AWSTreeNodeBase[]> = []
+        // constructNodes.map(node => {
+        //     (await STACK_NODES).push(node.getChildren())
+        // })
+        const STATE_MACHINES: ConstructNodePickItem[] = []
+        constructNodes.map(node => {
+            const children = node.getChildren()
+            const HELPER:AWSTreeNodeBase[] = []
+            children.then(n => {
+                n.map(i => HELPER.push(i))
+            }),
+            
+            STATE_MACHINES.push({
                 //need to change this part!!!!!!!!!!!!!!!!
-                //label: obj.cdkJsonPath,
-                label: node.label,
-                stateMachineNode: node
-            }
+                //label: constructNodes.length.toString(),
+                //label: node.label!,
+                
+                label: node.label!,
+                //label: HELPER.length.toString(),
+                //label: node.getChildren().then(),
+                stateMachineNode: node!
+            })
         })
-
 
 
         const quickPick = picker.createQuickPick({
