@@ -3,6 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { PlaceholderNode } from '../../../../src/shared/treeview/nodes/placeholderNode'
 import * as vscode from 'vscode'
 import { AWSTreeNodeBase } from '../../../shared/treeview/nodes/awsTreeNodeBase'
 import { cdk } from '../../globals'
@@ -94,4 +95,9 @@ export function isStateMachine(construct: ConstructTreeEntity): boolean {
 
     const type: string = treeInspector.getTypeAttributeOrDefault(resource, '')
     return type === 'AWS::StepFunctions::StateMachine'
+}
+
+export function getStateMachineNodes(construct: ConstructNode | PlaceholderNode): ConstructNode[]{
+    //if(typeof construct === typeof PlaceholderNode) return []
+    return []
 }

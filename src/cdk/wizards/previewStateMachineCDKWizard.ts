@@ -32,23 +32,9 @@ export interface CdkAppLocationPickItem {
 export interface ConstructNodePickItem {
     label: string,
     //stateMachineNode: ConstructNode | PlaceholderNode
-    stateMachineNode: AWSTreeNodeBase
+    stateMachineNode: ConstructNode
     //stateMachineNode: string
 }
-// export const STARTER_TEMPLATES: ConstructNodePickItem[] = [
-//     {
-//         label: localize('AWS.stepfunctions.template.helloWorld.label', 'Hello world'),
-//         stateMachineNode: 'HelloWorld.asl.json',
-//     },
-//     {
-//         label: localize('AWS.stepfunctions.template.retryFailure.label', 'Retry failure'),
-//         stateMachineNode: 'RetryFailure.asl.json',
-//     },
-//     {
-//         label: localize('AWS.stepfunctions.template.waitState.label', 'Wait state'),
-//         stateMachineNode: 'WaitState.asl.json',
-//     },
-// ]
 
 interface PreviewStateMachineCDKWizardResponse {
     cdkApplication: CdkAppLocationPickItem
@@ -81,7 +67,7 @@ export default class PreviewStateMachineCDKWizard extends MultiStepWizard<Previe
                 {
                     //need to change this part!!!!!!!!!!!!!!!!
                     //label: cdkAppLocations.length.toString(),
-                    label: obj.cdkJsonPath,
+                    label: getCDKAppName(obj.cdkJsonPath),
                     cdkApplocation: obj
                 })
         })
@@ -128,21 +114,21 @@ export default class PreviewStateMachineCDKWizard extends MultiStepWizard<Previe
         const STATE_MACHINES: ConstructNodePickItem[] = []
         constructNodes.map(node => {
             const children = node.getChildren()
-            const HELPER:AWSTreeNodeBase[] = []
+            const HELPER: AWSTreeNodeBase[] = []
             children.then(n => {
                 n.map(i => HELPER.push(i))
             }),
-            
-            STATE_MACHINES.push({
-                //need to change this part!!!!!!!!!!!!!!!!
-                //label: constructNodes.length.toString(),
-                //label: node.label!,
                 
-                label: node.label!,
-                //label: HELPER.length.toString(),
-                //label: node.getChildren().then(),
-                stateMachineNode: node!
-            })
+                STATE_MACHINES.push({
+                    //need to change this part!!!!!!!!!!!!!!!!
+                    //label: constructNodes.length.toString(),
+                    //label: node.label!,
+
+                    label: node.label!,
+                    //label: HELPER.length.toString(),
+                    //label: node.getChildren().then(),
+                    stateMachineNode: node!
+                })
         })
 
 
@@ -187,3 +173,13 @@ export default class PreviewStateMachineCDKWizard extends MultiStepWizard<Previe
         )
     }
 }
+
+/**
+ * @param {string} cdkJsonPath - path to the cdk.json file 
+ * @returns name of the CDK Application
+ */
+export function getCDKAppName(cdkJsonPath: string) {
+    if (typeof (cdkJsonPath) != "string") return cdkJsonPath;
+    cdkJsonPath = cdkJsonPath.replace('/cdk.json', '')
+    return cdkJsonPath.substring(cdkJsonPath.lastIndexOf("/") + 1, cdkJsonPath.length)
+};

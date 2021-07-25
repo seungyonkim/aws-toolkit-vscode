@@ -16,37 +16,18 @@ import { showErrorWithLogs } from '../../../src/shared/utilities/messages'
 import { renderGraphCommand } from './renderGraph'
 import { AslVisualizationCDKManager } from './aslVisualizationCDKManager'
 
-export async function previewCDKStateMachineFromTemplate(context: vscode.ExtensionContext) {
+export async function previewCDKStateMachineFromTemplate(context: vscode.Memento, aslVisualizationCDKManager: AslVisualizationCDKManager) {
     const logger: Logger = getLogger()
 
     const wizardResponse = await new PreviewStateMachineCDKWizard().run()
 
     if (wizardResponse && wizardResponse.cdkApplication && wizardResponse.stateMachine) {
-        try {
             logger.debug(
-                //change this part!!!!!!!!!!!!!!!!!!!!!!!!!!
                 `User selected the ${wizardResponse.stateMachine} state machine of ${wizardResponse.cdkApplication.label} CDK application`
             )
-
-            renderGraphCommand(wizardResponse.stateMachine.stateMachineNode,extensionContext,visualizationManager)
-
-        } catch (err) {
-        
-        }
+            
+            //this error will get resolved when merged with render-graph-from-cdk branch 
+            renderGraphCommand(wizardResponse.stateMachine.stateMachineNode,context,aslVisualizationCDKManager)
+            
     }
 }
-
-// async function getTextDocumentForSelectedItem(
-//     item: StateMachineListPickItem,
-//     extensionPath: string,
-//     format: string
-// ): Promise<vscode.TextDocument> {
-//     let content = await readFileAsString(path.join(extensionPath, 'templates', item.fileName))
-
-//     const options = {
-//         content,
-//         language: format === JSON_ASL,
-//     }
-
-//     return await vscode.workspace.openTextDocument(options)
-// }
