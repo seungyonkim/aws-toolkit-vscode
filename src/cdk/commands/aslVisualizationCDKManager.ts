@@ -31,6 +31,7 @@ export class AslVisualizationCDKManager extends AbstractAslVisualizationManager 
         const uri = vscode.Uri.file(templatePath);
         const appName = getCDKAppName(cdkOutPath!)
         const existingVisualization = this.getExistingVisualization(appName, uniqueIdentifier)
+
         if (existingVisualization) {
             existingVisualization.showPanel()
 
@@ -55,13 +56,13 @@ export class AslVisualizationCDKManager extends AbstractAslVisualizationManager 
     }
 
     protected handleNewVisualization(cdkAppName: string, newVisualization: AslVisualizationCDK): void {
-        let map = this.managedVisualizations.get(cdkAppName)
-        if (!map) {
-            map = new Map<string, AslVisualizationCDK>()
-            map.set(newVisualization.uniqueIdentifier, newVisualization)
-            this.managedVisualizations.set(cdkAppName, map)
+        let visInCdkApp = this.managedVisualizations.get(cdkAppName)
+        if (!visInCdkApp) {
+            visInCdkApp = new Map<string, AslVisualizationCDK>()
+            visInCdkApp.set(newVisualization.uniqueIdentifier, newVisualization)
+            this.managedVisualizations.set(cdkAppName, visInCdkApp)
         }
-        else map.set(newVisualization.uniqueIdentifier, newVisualization)
+        else visInCdkApp.set(newVisualization.uniqueIdentifier, newVisualization)
 
         const visualizationDisposable = newVisualization.onVisualizationDisposeEvent(() => {
             this.deleteVisualization(cdkAppName, newVisualization.uniqueIdentifier)
@@ -87,7 +88,9 @@ export class AslVisualizationCDKManager extends AbstractAslVisualizationManager 
  * @returns name of the CDK Application
  */
 export function getCDKAppName(cdkOutPath: string) {
-    if (typeof (cdkOutPath) != "string") return cdkOutPath;
+    if (typeof (cdkOutPath) != "string") {
+        return cdkOutPath;
+    }
     cdkOutPath = cdkOutPath.replace('/cdk.out', '')
     return cdkOutPath.substring(cdkOutPath.lastIndexOf("/") + 1, cdkOutPath.length)
 };

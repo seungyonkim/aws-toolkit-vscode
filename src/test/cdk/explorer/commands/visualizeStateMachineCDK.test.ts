@@ -15,6 +15,12 @@ import { AWSTreeNodeBase } from '../../../../../src/shared/treeview/nodes/awsTre
 import { ConstructTreeEntity } from '../../../../../src/cdk/explorer/tree/types'
 import { AslVisualizationCDK } from '../../../../../src/cdk/commands/aslVisualizationCDK'
 
+import { Disposable } from 'vscode-languageclient'
+import { AslVisualization } from '../../../../../src/stepFunctions/commands/visualizeStateMachine/aslVisualization'
+import { AslVisualizationManager } from '../../../../../src/stepFunctions/commands/visualizeStateMachine/aslVisualizationManager'
+
+import { JSON_ASL } from '../../../../../src/stepFunctions/constants/aslFormats'
+
 // Top level defintions
 let aslVisualizationCDKManager: AslVisualizationCDKManager
 let sandbox: sinon.SinonSandbox

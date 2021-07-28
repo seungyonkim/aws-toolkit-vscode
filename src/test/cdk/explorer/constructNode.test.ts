@@ -178,7 +178,18 @@ describe('ConstructNode', function () {
         assert.strictEqual(childNodes[0] instanceof ConstructNode, true, 'Expected child node to be a ConstructNode')
     })
 
-    it('returns true when tree node contains a node with id === "Resource" and type === "StateMachine"', async function () {
+    function generateTestNode(displayLabel: string): ConstructNode {
+        return new ConstructNode(
+            new FakeParentNode(cdkJsonPath),
+            displayLabel,
+            vscode.TreeItemCollapsibleState.Collapsed,
+            treeUtils.generateConstructTreeEntity(displayLabel, constructTreePath)
+        )
+    }
+})
+
+describe('isStateMachine', function () {
+    it('returns true when tree node contains a node with id is "Resource" and type is "StateMachine"', async function () {
         const construct: ConstructTreeEntity = {
             id: 'StateMachine',
             path: 'aws-stepfunctions-integ/StateMachine',
@@ -197,7 +208,7 @@ describe('ConstructNode', function () {
         assert.ok(isStateMachine(construct))
     })
 
-    it('returns true when tree node contains a node with id !== "Resource" and type === "StateMachine"', async function () {
+    it('returns false when tree node contains a node with id is not "Resource" and type is "StateMachine"', async function () {
         const construct: ConstructTreeEntity = {
             id: 'StateMachine',
             path: 'aws-stepfunctions-integ/StateMachine',
@@ -216,7 +227,7 @@ describe('ConstructNode', function () {
         assert.strictEqual(isStateMachine(construct), false)
     })
 
-    it('returns false when tree node contains a node with id !== "Resource" and type !== "StateMachine"', async function () {
+    it('returns false when tree node contains a node with id is not "Resource" and type is not "StateMachine"', async function () {
 
         const construct: ConstructTreeEntity = {
             id: 'StateMachine',
@@ -235,7 +246,7 @@ describe('ConstructNode', function () {
         assert.strictEqual(isStateMachine(construct), false)
     })
 
-    it('returns false when tree node contains a node with id === "Resource" and type !== "StateMachine"', async function () {
+    it('returns false when tree node contains a node with id is "Resource" and type is not "StateMachine"', async function () {
 
         const construct: ConstructTreeEntity = {
             id: 'StateMachine',
@@ -253,15 +264,6 @@ describe('ConstructNode', function () {
         }
         assert.strictEqual(isStateMachine(construct), false)
     })
-
-    function generateTestNode(displayLabel: string): ConstructNode {
-        return new ConstructNode(
-            new FakeParentNode(cdkJsonPath),
-            displayLabel,
-            vscode.TreeItemCollapsibleState.Collapsed,
-            treeUtils.generateConstructTreeEntity(displayLabel, constructTreePath)
-        )
-    }
 })
 
 export class FakeParentNode extends AWSTreeNodeBase {

@@ -13,7 +13,6 @@ const stackName = 'templateJsonTester'
 const templatePath = cdkOutPath + `/${stackName}.template.json`
 
 describe('CDK GetCfnDefinition for State Machines', function () {
-    console.log(cdkOutPath)
     it('get the correct cfn definition for state machine with correct inputs', async function () {
         let data = getCfnDefinition.getStateMachineDefinitionFromCfnTemplate(uniqueIdendifier, templatePath)
         data = getCfnDefinition.toUnescapedAslJson(data!)
@@ -27,7 +26,6 @@ describe('CDK GetCfnDefinition for State Machines', function () {
 
     it('return undefined with wrong templatePath', async function () {
         const data = getCfnDefinition.getStateMachineDefinitionFromCfnTemplate(uniqueIdendifier, templatePath + 'x')
-        console.log(data)
         assert.strictEqual(data, undefined)
     })
 
