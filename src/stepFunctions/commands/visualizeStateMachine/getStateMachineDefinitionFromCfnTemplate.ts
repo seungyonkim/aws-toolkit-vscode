@@ -30,6 +30,7 @@ export function getStateMachineDefinitionFromCfnTemplate(uniqueIdentifier: strin
                 matchingKeyList.push(key)
             }
         }
+        
         if (matchingKeyList.length === 0) {
             return
         }
