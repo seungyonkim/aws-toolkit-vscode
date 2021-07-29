@@ -84,7 +84,7 @@ export class ConstructNode extends AWSTreeNodeBase {
     * Determines if a CDK construct is of type state machine
     * 
     * @param {ConstructTreeEntity} construct - CDK construct
-    */
+*/
 export function isStateMachine(construct: ConstructTreeEntity): boolean {
 
     if (!construct.children) return false

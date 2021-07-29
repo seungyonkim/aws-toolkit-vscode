@@ -230,7 +230,7 @@ describe('isStateMachine', function () {
     it('returns false when tree node contains a node with id is not "Resource" and type is not "StateMachine"', async function () {
 
         const construct: ConstructTreeEntity = {
-            id: 'StateMachine',
+            id: 'LambdaFunction',
             path: 'aws-stepfunctions-integ/LambdaFunction',
             children: {
                 'Other': {
@@ -249,7 +249,7 @@ describe('isStateMachine', function () {
     it('returns false when tree node contains a node with id is "Resource" and type is not "StateMachine"', async function () {
 
         const construct: ConstructTreeEntity = {
-            id: 'StateMachine',
+            id: 'LambdaFunction',
             path: 'aws-stepfunctions-integ/LambdaFunction',
             children: {
                 'Resource': {

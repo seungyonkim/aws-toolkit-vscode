@@ -1,5 +1,5 @@
 /*!
- * Copyright 2019 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+ * Copyright 2021 Amazon.com, Inc. or its affiliates. All Rights Reserved.
  * SPDX-License-Identifier: Apache-2.0
  */
 
@@ -22,6 +22,10 @@ export class AslVisualizationCDKManager extends AbstractAslVisualizationManager 
         globalStorage: vscode.Memento,
         node: ConstructNode
     ): Promise<vscode.WebviewPanel | undefined> {
+        if(node.contextValue !== 'awsCdkStateMachineNode'){
+            return
+        }
+
         const logger: Logger = getLogger()
         const cache = new StateMachineGraphCache()
         const uniqueIdentifier = node.label

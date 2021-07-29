@@ -52,27 +52,29 @@ export class FakeParentNode extends AWSTreeNodeBase {
 const mockSMConstructTreeEntity: ConstructTreeEntity = {
     id: 'MyStateMachine',
     path: 'aws-tester/MyStateMachine',
-    children: { 'Resource' : {
-                    id: 'Resource',
-                    path: 'aws-tester/MyStateMachine/Resource',
-                    attributes: {
-                        "aws:cdk:cloudformation:type": 'AWS::StepFunctions::StateMachine'
-                    }
-                }
-              }
+    children: {
+        'Resource': {
+            id: 'Resource',
+            path: 'aws-tester/MyStateMachine/Resource',
+            attributes: {
+                "aws:cdk:cloudformation:type": 'AWS::StepFunctions::StateMachine'
+            }
+        }
+    }
 }
 
 const mockNonSMConstructTreeEntity: ConstructTreeEntity = {
     id: 'MyLambdaFunction',
     path: 'aws-tester/MyLambdaFunction',
-    children: { 'Resource' : {
-                    id: 'Resource',
-                    path: 'aws-tester/MyLambdaFunction/Resource',
-                    attributes: {
-                        "aws:cdk:cloudformation:type": 'AWS::StepFunctions::LambdaFunction'
-                    }
-                }
-              }
+    children: {
+        'Resource': {
+            id: 'Resource',
+            path: 'aws-tester/MyLambdaFunction/Resource',
+            attributes: {
+                "aws:cdk:cloudformation:type": 'AWS::StepFunctions::LambdaFunction'
+            }
+        }
+    }
 }
 
 const label = 'MyStateMachine'
@@ -96,7 +98,7 @@ const mockConstructNode2 = new ConstructNode(
 )
 //const mockConstructNode = new ConstructNode(new FakeParentNode('fakeParentNode'),'MyStateMachine',vscode.TreeItemCollapsibleState.Collapsed,mockConstruct)
 
-const mockAslVisualizationCDK = new AslVisualizationCDK('','')
+const mockAslVisualizationCDK = new AslVisualizationCDK('', '')
 
 var stub = sinon.createStubInstance(AslVisualizationCDKManager, {
     visualizeStateMachine:
@@ -189,31 +191,31 @@ describe('StepFunctions VisualizeStateMachine', async function () {
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
     })
 
-    it('Test AslVisualizationCDKManager managedVisualizations set has one AslVis on first preview', async function () {   
+    it('Test AslVisualizationCDKManager managedVisualizations set has one AslVis on first preview', async function () {
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
-        
+
         //render graph
-        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage,mockStateMachineNode)
+        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
     })
 
     it('Test AslVisualizationCDKManager managedVisualizations set does not add second Vis on duplicate preview', async function () {
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
-        
+
         //render graph
-        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage,mockStateMachineNode)
+        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
-        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage,mockStateMachineNode)
+        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
     })
 
     it('Test AslVisualizationCDKManager managedVisualizations set adds second Vis on different preview', async function () {
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
-        
+
         //render graph
-        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage,mockStateMachineNode)
+        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
-        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage,mockStateMachineNode2)
+        aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode2)
         assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 2)
     })
 
@@ -225,5 +227,5 @@ describe('StepFunctions VisualizeStateMachine', async function () {
 
     it('Test AslVisualisationCDK sendUpdateMessage posts a correct update message for ASL files', async function () {
     })
-    
+
 })
