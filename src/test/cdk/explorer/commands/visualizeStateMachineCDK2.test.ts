@@ -9,21 +9,22 @@ import * as vscode from 'vscode'
 
 import { Disposable } from 'vscode-languageclient'
 import { AslVisualizationCDK } from '../../../../../src/cdk/commands/aslVisualizationCDK'
-import { AslVisualizationCDKManager } from '../../../../../src/cdk/commands/aslVisualizationCDKManager'
+import { AslVisualizationCDKManager, getCDKAppName } from '../../../../../src/cdk/commands/aslVisualizationCDKManager'
 
 import { ext } from '../../../../shared/extensionGlobals'
 import { StateMachineGraphCache } from '../../../../stepFunctions/utils'
 
 import { JSON_ASL } from '../../../../../src/stepFunctions/constants/aslFormats'
 import { ConstructTreeEntity } from '../../../../../src/cdk/explorer/tree/types'
-import { ConstructNode } from '../../../../../src/cdk/explorer/nodes/constructNode'
+import { ConstructNode, isStateMachine } from '../../../../../src/cdk/explorer/nodes/constructNode'
 import { FakeParentNode } from '../constructNode.test'
 import * as treeUtils from '../../utilities/treeTestUtils'
+import { getLogger, Logger } from '../../../../shared/logger'
 
 
 
 // Top level defintions
-let aslVisualizationCDKManager: AslVisualizationCDKManager
+let mockAslVisualizationCDKManager: MockAslVisualizationCDKManager
 let sandbox: sinon.SinonSandbox
 
 const mockGlobalStorage: vscode.Memento = {
@@ -136,46 +137,6 @@ const mockTextDocumentJson: vscode.TextDocument = {
     validateRange: sinon.spy(),
 }
 
-const mockPosition: vscode.Position = {
-    line: 0,
-    character: 0,
-    isBefore: sinon.spy(),
-    isBeforeOrEqual: sinon.spy(),
-    isAfter: sinon.spy(),
-    isAfterOrEqual: sinon.spy(),
-    isEqual: sinon.spy(),
-    translate: sinon.spy(),
-    with: sinon.spy(),
-    compareTo: sinon.spy(),
-}
-
-const mockSelection: vscode.Selection = {
-    anchor: mockPosition,
-    active: mockPosition,
-    end: mockPosition,
-    isEmpty: false,
-    isReversed: false,
-    isSingleLine: false,
-    start: mockPosition,
-    contains: sinon.spy(),
-    intersection: sinon.spy(),
-    isEqual: sinon.spy(),
-    union: sinon.spy(),
-    with: sinon.spy(),
-}
-
-const mockRange: vscode.Range = {
-    start: mockPosition,
-    end: mockPosition,
-    isEmpty: false,
-    isSingleLine: false,
-    contains: sinon.spy(),
-    intersection: sinon.spy(),
-    isEqual: sinon.spy(),
-    union: sinon.spy(),
-    with: sinon.spy(),
-}
-
 const mockExtensionContext: vscode.ExtensionContext = {
     extensionPath: '',
     globalState: mockGlobalStorage,
@@ -229,6 +190,13 @@ const mockStateMachineNode = new ConstructNode(
     mockSMConstructTreeEntity
 )
 
+const mockStateMachineNode2 = new ConstructNode(
+    new FakeParentNode('cdkJsonPath'),
+    'MyStateMachine2',
+    vscode.TreeItemCollapsibleState.Collapsed,
+    mockSMConstructTreeEntity
+)
+
 // const mockNonConstructNode2: ConstructNode= {
 //     type: 'ConstructNode',
 //     properties: undefined,
@@ -241,7 +209,7 @@ const mockStateMachineNode = new ConstructNode(
 // }
 
 describe('StepFunctions VisualizeStateMachine', async function () {
-    let mockVsCode: MockVSCode
+    //let mockVsCode: MockVSCode
 
     const oldWebviewScriptsPath = ext.visualizationResourcePaths.localWebviewScriptsPath
     const oldWebviewBodyPath = ext.visualizationResourcePaths.webviewBodyScript
@@ -253,7 +221,7 @@ describe('StepFunctions VisualizeStateMachine', async function () {
 
     // Before all
     before(function () {
-        mockVsCode = new MockVSCode()
+        //mockVsCode = new MockVSCode()
 
         ext.visualizationResourcePaths.localWebviewScriptsPath = mockUriOne
         ext.visualizationResourcePaths.visualizationLibraryCachePath = mockUriOne
@@ -271,12 +239,12 @@ describe('StepFunctions VisualizeStateMachine', async function () {
 
     // Before each
     beforeEach(function () {
-        aslVisualizationCDKManager = new AslVisualizationCDKManager(mockExtensionContext)
+        mockAslVisualizationCDKManager = new MockAslVisualizationCDKManager(mockExtensionContext)
     })
 
     // After each
     afterEach(function () {
-        mockVsCode.closeAll()
+        //mockVsCode.closeAll()
     })
 
     // After all
@@ -292,7 +260,7 @@ describe('StepFunctions VisualizeStateMachine', async function () {
     })
 
     // Tests
-    it('Test AslVisualization on setup all properties are correct', function () {
+    it('Test AslVisualizationCDK on setup all properties are correct', function () {
         const vis = new MockAslVisualizationCDK(mockTextDocumentOne, '', '')
 
         assert.deepStrictEqual(vis.documentUri, mockTextDocumentOne.uri)
@@ -312,91 +280,85 @@ describe('StepFunctions VisualizeStateMachine', async function () {
     })
 
     it('Test AslVisualizationCDKManager on setup managedVisualizationsCDK set is empty', function () {
-        assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
     })
 
-    it('Test AslVisualizationCDKManager managedVisualizationsCDK set still empty if non state machine node', async function () {
-        assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+    it('Test AslVisualizationCDKManager managedVisualizationsCDK set still empty if node is not of type state machine', async function () {
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
 
         // Preview with non state machine node
-        assert.strictEqual(await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockNonConstructNode), undefined)
-        assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+        assert.strictEqual(await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockNonConstructNode), undefined)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
     })
 
-    it('Test AslVisualizationCDKManager managedVisualizationsCDK set has one AslVis on first preview', async function () {
-        assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+    it('Test AslVisualizationCDKManager managedVisualizationsCDK set has one AslVisCDK on first visualization', async function () {
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
 
-        await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
-        assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
+        //assert.ok(mockStateMachineNode.contextValue === 'awsCdkStateMachineNode')
+        assert.ok(await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode))
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 1)
 
-        const managedVisualizationsCDK = aslVisualizationCDKManager.getManagedVisualizations()
-        assert.ok(managedVisualizationsCDK.get(mockTextDocumentOne.uri.path))
+        //const managedVisualizationsCDK = mockAslVisualizationCDKManager.getManagedVisualizations()
+        //assert.ok(managedVisualizationsCDK.get(mockTextDocumentOne.uri.path))
     })
 
-    // it('Test AslVisualizationManager managedVisualizations set does not add second Vis on duplicate preview', async function () {
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+    it('Test AslVisualizationCDKManager managedVisualizationsCDK set does not add second VisCDK on duplicate state machine node', async function () {
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
 
-    //     // Preview Doc1
-    //     mockVsCode.showTextDocument(mockTextDocumentOne)
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aaslVisualizationCDKManager.getManagedVisualizations().size, 1)
+        // visualization for mockStateMachineNode
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 1)
 
-    //     // Preview Doc1 Again
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
+        // visualization for mockStateMachineNode again
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 1)
 
-    //     const managedVisualizations = aslVisualizationCDKManager.getManagedVisualizations()
-    //     assert.ok(managedVisualizations.get(mockTextDocumentOne.uri.path))
-    // })
+        //const managedVisualizations = aslVisualizationCDKManager.getManagedVisualizations()
+        //assert.ok(managedVisualizations.get(mockTextDocumentOne.uri.path))
+    })
 
-    // it('Test AslVisualizationManager managedVisualizations set adds second Vis on different preview', async function () {
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+    it('Test AslVisualizationCDKManager managedVisualizationsCDK set adds second VisCDK on different state machine nodes', async function () {
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
 
-    //     // Preview Doc1
-    //     mockVsCode.showTextDocument(mockTextDocumentOne)
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
+        // visualization for mockStateMachineNode
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 1)
 
-    //     // Preview Doc2
-    //     mockVsCode.showTextDocument(mockTextDocumentTwo)
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 2)
+        // visualization for mockStateMachineNode2
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode2)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 2)
 
-    //     const managedVisualizations = aslVisualizationCDKManager.getManagedVisualizations()
-    //     assert.ok(managedVisualizations.get(mockTextDocumentOne.uri.path))
-    //     assert.ok(managedVisualizations.get(mockTextDocumentTwo.uri.path))
-    // })
+        // const managedVisualizations = aslVisualizationCDKManager.getManagedVisualizations()
+        // assert.ok(managedVisualizations.get(mockTextDocumentOne.uri.path))
+        // assert.ok(managedVisualizations.get(mockTextDocumentTwo.uri.path))
+    })
 
-    // it('Test AslVisualizationManager managedVisualizations set does not add duplicate renders when multiple Vis active', async function () {
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+    it('Test AslVisualizationCDKManager managedVisualizationsCDK set does not add duplicate renders when multiple VisCDK active', async function () {
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
 
-    //     // Preview Doc1
-    //     mockVsCode.showTextDocument(mockTextDocumentOne)
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
+        // visualization for mockStateMachineNode
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 1)
 
-    //     // Preview Doc2
-    //     mockVsCode.showTextDocument(mockTextDocumentTwo)
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 2)
+        // visualization for mockStateMachineNode2
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode2)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 2)
 
-    //     // Preview Doc1 Again
-    //     mockVsCode.showTextDocument(mockTextDocumentOne)
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 2)
+        // visualization for mockStateMachineNode again
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 2)
 
-    //     // Preview Doc2 Again
-    //     mockVsCode.showTextDocument(mockTextDocumentTwo)
-    //     await aslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, vscode.window.activeTextEditor)
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 2)
+        // visualization for mockStateMachineNode2 again
+        await mockAslVisualizationCDKManager.visualizeStateMachine(mockGlobalStorage, mockStateMachineNode2)
+        assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 2)
 
-    //     const managedVisualizations = aslVisualizationCDKManager.getManagedVisualizations()
-    //     assert.ok(managedVisualizations.get(mockTextDocumentOne.uri.path))
-    //     assert.ok(managedVisualizations.get(mockTextDocumentTwo.uri.path))
-    // })
+        // const managedVisualizations = aslVisualizationCDKManager.getManagedVisualizations()
+        // assert.ok(managedVisualizations.get(mockTextDocumentOne.uri.path))
+        // assert.ok(managedVisualizations.get(mockTextDocumentTwo.uri.path))
+    })
 
-    // it('Test AslVisualizationManager managedVisualizations set removes visualization on visualization dispose, single vis', async function () {
-    //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
+    // it('Test AslVisualizationCDKManager managedVisualizationsCDK set removes visualization on removal of template.json file, single visCDK', async function () {
+    //     assert.strictEqual(mockAslVisualizationCDKManager.getManagedVisualizations().size, 0)
 
     //     // Preview Doc1
     //     mockVsCode.showTextDocument(mockTextDocumentOne)
@@ -414,7 +376,7 @@ describe('StepFunctions VisualizeStateMachine', async function () {
     //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
     // })
 
-    // it('Test AslVisualizationManager managedVisualizations set removes correct visualization on visualization dispose, multiple vis', async function () {
+    // it('Test AslVisualizationCDKManager managedVisualizationsCDK set removes correct visualization on removal of template.json file, multiple vis', async function () {
     //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 0)
 
     //     // Preview Doc1
@@ -438,15 +400,15 @@ describe('StepFunctions VisualizeStateMachine', async function () {
     //     assert.strictEqual(aslVisualizationCDKManager.getManagedVisualizations().size, 1)
     // })
 
-    // it('Test AslVisualisation sendUpdateMessage posts a correct update message for ASL files', async function () {
+    // it('Test AslVisualisationCDK sendUpdateMessage posts a correct update message for ASL files', async function () {
     //     const postMessage = sinon.spy()
-    //     class MockAslVisualizationJson extends AslVisualization {
+    //     class MockAslVisualizationJsonCDK extends AslVisualizationCDK {
     //         public getWebview(): vscode.Webview | undefined {
     //             return ({ postMessage } as unknown) as vscode.Webview
     //         }
     //     }
 
-    //     const visualisation = new MockAslVisualizationJson(mockTextDocumentJson)
+    //     const visualisation = new MockAslVisualizationJsonCDK(mockTextDocumentJson,'','')
 
     //     await visualisation.sendUpdateMessage(mockTextDocumentJson)
 
@@ -466,6 +428,11 @@ class MockAslVisualizationCDK extends AslVisualizationCDK {
     protected getText(textDocument: vscode.TextDocument): string {
         return mockDataJson
     }
+
+    protected getTemplateJsonDocument(templatePath: string) {
+        return mockUriOne
+    }
+
     public getIsPanelDisposed(): boolean {
         return this.isPanelDisposed
     }
@@ -475,64 +442,48 @@ class MockAslVisualizationCDK extends AslVisualizationCDK {
     }
 }
 
-class MockEditor implements vscode.TextEditor {
-    public readonly options = {}
-    public readonly selection = mockSelection
-    public readonly selections = []
-    public readonly visibleRanges = [mockRange]
-    public readonly edit = sinon.spy()
-    public readonly insertSnippet = sinon.spy()
-    public readonly setDecorations = sinon.spy()
-    public readonly hide = sinon.spy()
-    public readonly revealRange = sinon.spy()
-    public readonly show = sinon.spy()
-    public document: vscode.TextDocument
-
-    public constructor(document: vscode.TextDocument) {
-        this.document = document
-    }
-
-    public setDocument(document: vscode.TextDocument): void {
-        this.document = document
-    }
-}
-
-class MockVSCode {
-    public activeEditor: MockEditor | undefined = undefined
-    private documents: Set<vscode.TextDocument> = new Set<vscode.TextDocument>()
-
-    public showTextDocument(documentToShow: vscode.TextDocument): void {
-        let doc = this.getDocument(documentToShow)
-        if (!doc) {
-            this.documents.add(documentToShow)
-            doc = documentToShow
+class MockAslVisualizationCDKManager extends AslVisualizationCDKManager {
+    public async visualizeStateMachine(
+        globalStorage: vscode.Memento,
+        node: ConstructNode
+    ): Promise<vscode.WebviewPanel | undefined> {
+        if (!isStateMachine(node.construct)) {
+            console.log('is not a state machine')
+            return
         }
-        this.updateActiveEditor(doc)
 
-        // Update the return value for the stub with each call to showTextDocument
-        sandbox.stub(vscode.window, 'activeTextEditor').value(this.activeEditor)
-    }
+        const logger: Logger = getLogger()
+        const cache = new StateMachineGraphCache()
+        const uniqueIdentifier = node.label
+        const cdkOutPath = node.id?.replace(`/tree.json/${node.tooltip}`, ``)
+        const stackName = node.tooltip?.replace(`/${uniqueIdentifier}`, ``)
+        const templatePath = String(cdkOutPath) + `/${stackName}.template.json`
+        const appName = getCDKAppName(cdkOutPath!)
+        const existingVisualization = this.getExistingVisualization(appName, uniqueIdentifier)
+        const uri = vscode.Uri.file(templatePath);
 
-    public closeAll(): void {
-        this.activeEditor = undefined
-        this.documents = new Set<vscode.TextDocument>()
-    }
+        if (existingVisualization) {
+            existingVisualization.showPanel()
 
-    private getDocument(documentToFind: vscode.TextDocument): vscode.TextDocument | undefined {
-        for (const doc of this.documents) {
-            if (doc.uri.path === documentToFind.uri.path) {
-                return doc
+            return existingVisualization.getPanel()
+        }
+
+        // Existing visualization does not exist, construct new visualization
+        try {
+            //await cache.updateCache(globalStorage)
+
+            //const textDocument = await vscode.workspace.openTextDocument(uri)
+            const newVisualization = new MockAslVisualizationCDK(mockTextDocumentOne, templatePath, uniqueIdentifier)
+            if (newVisualization) {
+                this.handleNewVisualization(appName, newVisualization)
+                return newVisualization.getPanel()
             }
+        } catch (err) {
+            this.handleErr(err, logger)
         }
 
+        console.log('cannot render visualization')
         return
     }
-
-    private updateActiveEditor(document: vscode.TextDocument): void {
-        if (this.activeEditor) {
-            this.activeEditor.setDocument(document)
-        } else {
-            this.activeEditor = new MockEditor(document)
-        }
-    }
 }
+
