@@ -39,6 +39,19 @@ const mockUriOne: vscode.Uri = {
     toJSON: sinon.spy(),
 }
 
+const mockUriTwo: vscode.Uri = {
+    authority: 'amazon.com',
+    fragment: 'MockFragmentTwo',
+    fsPath: 'MockFSPathTwo',
+    query: 'MockQueryTwo',
+    path: '/MockPathTwo',
+    scheme: 'MockSchemeTwo',
+    with: () => {
+        return mockUriTwo
+    },
+    toJSON: sinon.spy(),
+}
+
 const mockTextDocumentOne: vscode.TextDocument = {
     eol: 1,
     fileName: 'MockFileNameOne',
@@ -51,6 +64,28 @@ const mockTextDocumentOne: vscode.TextDocument = {
     version: 0,
     getText: () => {
         return 'MockDocumentTextOne'
+    },
+    getWordRangeAtPosition: sinon.spy(),
+    lineAt: sinon.spy(),
+    offsetAt: sinon.spy(),
+    positionAt: sinon.spy(),
+    save: sinon.spy(),
+    validatePosition: sinon.spy(),
+    validateRange: sinon.spy(),
+}
+
+const mockTextDocumentTwo: vscode.TextDocument = {
+    eol: 1,
+    fileName: 'MockFileNameTwo',
+    isClosed: false,
+    isDirty: false,
+    isUntitled: false,
+    languageId: 'MockLanguageIdTwo',
+    lineCount: 0,
+    uri: mockUriTwo,
+    version: 0,
+    getText: () => {
+        return 'MockDocumentTextTwo'
     },
     getWordRangeAtPosition: sinon.spy(),
     lineAt: sinon.spy(),
@@ -96,7 +131,7 @@ const mockNonConstructNode = new ConstructNode(
     mockNonSMConstructTreeEntity
 )
 
-const mockSMConstructTreeEntity: ConstructTreeEntity = {
+const mockStateMachineConstructTreeEntity: ConstructTreeEntity = {
     id: 'MyStateMachine',
     path: 'aws-tester/MyStateMachine',
     children: {
@@ -114,14 +149,14 @@ const mockStateMachineNode = new ConstructNode(
     new FakeParentNode('cdkJsonPath'),
     'MyStateMachine',
     vscode.TreeItemCollapsibleState.Collapsed,
-    mockSMConstructTreeEntity
+    mockStateMachineConstructTreeEntity
 )
 
 const mockStateMachineNode2 = new ConstructNode(
     new FakeParentNode('cdkJsonPath'),
     'MyStateMachine2',
     vscode.TreeItemCollapsibleState.Collapsed,
-    mockSMConstructTreeEntity
+    mockStateMachineConstructTreeEntity
 )
 
 describe('StepFunctions VisualizeStateMachine', async function () {
